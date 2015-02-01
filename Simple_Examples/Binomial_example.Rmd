@@ -1,0 +1,106 @@
+---
+title: "Binomial_example"
+author: "virgile"
+date: "02/01/2015"
+output: html_document
+---
+
+This example come from a very good document by [Michael Clark](http://www3.nd.edu/~mclark19/).
+
+## Texting while driving
+
+Here, we want to know the probability that a driver is texting while driving.
+
+### Data
+
+We take a sample of 10 cars.
+
+```{r}
+drive=c('texting','texting','texting','not','not','texting','texting','not','not','texting')
+```
+
+For analysis, we cannot use characters. We can suppose that *texting* or *not texting* is a bernouilli process and so we can say data drive follow a binomial distribution.
+
+```{r}
+# convert to numeric, texting=1, not=0
+driveNum=ifelse(drive=='texting',1,0)
+N=length(drive) # sample size
+nTexting=sum(drive=="texting") # number of driver texting
+nNot=sum(drive=="not") # number of those not
+```
+
+#### How binomial data are distributed ?
+
+If we used the binomial law, we can use a distribution with $N=10$ and $N=100$ and for priors, we have two hypothesis: $p=.5$ and $p=.85$.
+
+```{r}
+x1= rbinom(1e3,size=10,p=.5)
+x2= rbinom(1e3,size=100,p=.5)
+x3= rbinom(1e3,size=10,p=.85)
+x4= rbinom(1e3,size=100,p=.85)
+
+mean(x1) ; hist(x1)
+mean(x2) ; hist(x2)
+mean(x3) ; hist(x3)
+mean(x4) ; hist(x4)
+```
+
+Means are around $N \times p$ because of the convergence to Normal law for a Binomial law when the size increase.
+
+### Priors
+
+Priors are based on our hypothesis according to the theory and/or our experiences. We have to imagine a prior for the probabilty $p$ of the Binomial distribution of $N$ process of Bernouilli. Therfore, we can choose a uniform distribution in $[0,1]$ or a beta distribution to put ore wait on the value $p=0.5$ or other if we have information from previous observations.
+
+```{r}
+(theta=seq(1/(N+1),N/(N+1),length=10))
+# beta prior with mean= .5 = 10 /(10 +10)
+(pTheta=dbeta(theta,10,10))
+# Normalize so sum to 1
+(pTheta=pTheta/sum(pTheta))
+```
+
+### Likelihood
+
+In this situation, the likelihood is:
+
+\[
+P(Y \vert Theta) = \binom{N}{k} \theta^k (1-\theta)^{N-k}
+\]
+
+```{r}
+pDataGivenTheta = choose(N, nTexting) * theta^nTexting * (1-theta)^nNot
+```
+
+### Posterior
+
+Given the posterior and the likelihood, we can compute the posterion using the Bayes theorm:
+
+```{r}
+(pData=sum(pDataGivenTheta*pTheta))
+(pThetaGivenData=pDataGivenTheta*pTheta/pData) # Bayes theorem
+```
+
+
+Now, we can examine what we have:
+
+```{r}
+round(data.frame(theta,prior=pTheta,likelihood=pDataGivenTheta,posterior=pThetaGivenData),3)
+```
+
+What is the posterior mean ?
+
+```{r}
+(posteriorMean=sum(pThetaGivenData*theta))
+```
+
+
+### Distribution
+
+```{r}
+plot(density(pThetaGivenData)) # posterior
+plot(density(pDataGivenTheta)) # likelihood
+plot(density(pTheta)) # prior
+```
+
+
+

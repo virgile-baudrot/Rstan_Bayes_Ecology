@@ -1,0 +1,67 @@
+---
+title: "Frog_example"
+author: "virgile"
+date: "02/01/2015"
+output: html_document
+---
+
+## Example from Michael A. McCarthy's book: [Bayesian Methods for Ecology](http://www.cambridge.org/us/academic/subjects/life-sciences/ecology-and-conservation/bayesian-methods-ecology)
+
+The first example in the book is the frog surveying problem questioning the presence of a frog species: *Is frog present at the site?*.
+
+
+Remember the scheme:
+
+> prior + data $\xrightarrow{\text{model}}$ posterior
+
+and the important equation:
+
+\[
+P(Hypothesis \vert Data) = \frac{P(Data \vert Hypothesis)P(Hypothesis)}{P(Data)}
+\]
+
+where $P(Hypothesis)$ is the prior, $P(Data \vert Hypothesis)$ is the likelihood of the Hypothesis, and $P(Hypothesis \vert Data)$ is the posterior, what answer our question: *What is the probability of my Hypothesis according to the Data?*.
+
+
+## The data: $P(Data)$
+
+The **data** component, the easiest to understand, is: *the observations from the field*. Suppose we do not have detected the frog, therefore data is: $D=0$. We also have to specify the distribution of this variable. As the frog is either present or absent, it's a Bernouilli distribution: $D \sim Bernouilli(p)$. Here, we introduce the parameter of the distribution $p$ which is the probability to detect a frog.
+
+## The priors: $P(Hypothesis)$
+
+Let use $P(Ha)$ for the prior probability for *absence of the frog* and $P(Hp)$ for the prior probability of *presence of the frog*.
+
+If from experience, the presence of frog is as probable as the absence of frog, then, we will assume: $P(Ha)=P(Hp)=0.5$.
+
+- In this situation, **prior** are: $P(absent)$ and $P(present)$. 
+
+
+*From experience, the ecologist knows that frogs are detected on only 80 % of visits when they are in fact present*. Therefore, as a prior, we state the probability of detection: $p_{detect \vert present}=0.8$.
+
+
+## Likelihood of Hypothesis: $P(Data \vert Hypothesi)$
+
+The question we ask is $P(absent \vert Detected)$ ? where $Detected$ is the data.
+And we have the following information: By experience of the ecologist, we know that $P(Detected=1 \vert present)=0.8$, and $P(Detected=0 \vert absent)=1$.
+
+We know the Bayesian formula:
+
+\[
+P( A \vert B)=\frac{P( B \vert A)P(A)}{P(B)}
+\]
+
+Therefore, it is easy to write:
+
+\[
+P( absent \vert Detected )=\frac{P(Detected \vert absent )P(absent)}{P(Detected)}
+\]
+
+$P(Detected=0)$ is the probability to have our data:  $P(Detected=0)=1$.
+
+We know the formula: $P(\bar{A} \vert B) = P(B) - P(A \cap B)$, and therefore
+
+
+
+
+
+

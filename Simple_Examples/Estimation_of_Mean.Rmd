@@ -1,0 +1,107 @@
+---
+title: "Estimation_of_Mean"
+author: "virgile"
+date: "02/01/2015"
+output: html_document
+---
+
+Example from Michael A. McCarthy's book: [Bayesian Methods for Ecology](http://www.cambridge.org/us/academic/subjects/life-sciences/ecology-and-conservation/bayesian-methods-ecology)
+
+The second example in the book is the estimation of the average diameter of trees in an eucalypt forest.
+
+
+#### First, we upload the data: 
+
+Here we have 10 measures of tree diameters. To fit it with rstan, we create a `list()`.
+
+```{r}
+diam_tree=c(42,43,58,70,47,51,85,63,58,46)
+model_2_data=list(Y=diam_tree,N=length(diam_tree))
+```
+
+Information on data:
+
+```{r}
+mean(diam_tree)
+sd(diam_tree)
+```
+
+### Bayesian estimation:
+
+We have to write a file name here `model_2.stan` were we write:
+
+```{r,echo=FALSE}
+data {
+  int<lower=0> N; // number of data 
+  real Y[N]; // mean of tree
+}
+parameters {
+  real m; // prior for the mean
+  real stdev; // prior for the standard deviation
+}
+transformed parameters {
+   real prec; // precision of the data = 1/variance
+  prec <- 1/(stdev*stdev)
+}
+model {
+   m ~ normal(0,1e3); // uninformative prior (very large)
+  // stdev ~ sd(Y);
+  Y ~ normal(m,prec);
+}
+```
+
+Here are some graph illustrating the prior distributions:
+
+```{r}
+hist(rnorm(1e6,0,1e3),breaks=100)
+```
+
+```{r}
+library(rstan)
+```
+
+```{r}
+fit_model_2 <- stan(file="model_2.stan", data=model_2_data,iter=1e4, chains=3,warmup=5e3)
+```
+
+```{r}
+print(fit_model_2)
+```
+
+Plotting the trace plots:
+
+```{r}
+traceplot(fit_model_2)
+```
+
+And the parameter distribution:
+
+```{r}
+plot(fit_model_2)
+```
+
+
+
+How to plot posterior and so on:
+
+```{r}
+s=extract(fit_model_2,pars = c("m","prec"))
+plot(density(s$m))
+
+
+
+
+
+x <- seq(-max(s$m), max(s$m), length=1e3)
+hx <- dnorm(x,0,1e3)
+plot(x,hx,type='l')
+
+for (i in 1:4){
+  lines(x, dt(x,degf[i]), lwd=2, col=colors[i])
+}
+
+legend("topright", inset=.05, title="Distributions",
+  labels, lwd=2, lty=c(1, 1, 1, 1, 2), col=colors)
+curve()
+```
+
